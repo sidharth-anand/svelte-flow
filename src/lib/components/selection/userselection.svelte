@@ -1,6 +1,4 @@
 <script lang="ts">
-import { select } from "d3";
-
   import { store } from "../../store";
 
   import type { XYPosition, NodeChange, EdgeChange, Rect } from "../../types";
@@ -14,7 +12,7 @@ import { select } from "d3";
     draw: boolean;
   };
 
-  export let selectionKeyPressed: boolean = false;
+  export let selectionKeyPressed: boolean;
 
   function getMousePosition(
     event: MouseEvent,

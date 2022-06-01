@@ -25,11 +25,11 @@
     patternId = `pattern-${index}`;
   });
 
-  const scaledGap = gap * $store.transform[2];
-  const xOffset = $store.transform[0] % scaledGap;
-  const yOffset = $store.transform[1] % scaledGap;
+  $: scaledGap = gap * $store.transform[2];
+  $: xOffset = $store.transform[0] % scaledGap;
+  $: yOffset = $store.transform[1] % scaledGap;
 
-  const bgColor = color ? color : defaultColors[variant];
+  $: bgColor = color ? color : defaultColors[variant];
 </script>
 
 <svg

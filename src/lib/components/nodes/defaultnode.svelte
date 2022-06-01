@@ -1,14 +1,14 @@
 <script lang="ts">
   import Handle from "../handle/handle.svelte";
 
-  import { Position } from "../../types";
+  import type { Position } from "../../types";
 
   //TODO: make data a generic here
 
   export let data: any;
-  export let isConnectable: boolean = true;
-  export let sourcePosition: Position = Position.Bottom;
-  export let targetPosition: Position = Position.Top;
+  export let isConnectable: boolean;
+  export let sourcePosition: Position;
+  export let targetPosition: Position;
 </script>
 
 <Handle type="target" position={targetPosition} {isConnectable} />

@@ -15,7 +15,7 @@
     "selection:contextmenu": Node[];
   };
 
-  export let noPanClassName: string = "";
+  export let noPanClassName: string;
 
   const dispatch = createEventDispatcher<EventTypes>();
 

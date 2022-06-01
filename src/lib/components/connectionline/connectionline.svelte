@@ -12,7 +12,7 @@
   export let handleType: HandleType;
   export let x: number;
   export let y: number;
-  export let isConnectable: boolean = true;
+  export let isConnectable: boolean;
   export let type: ConnectionLineType = ConnectionLineType.Bezier;
 
   $: fromNode = $store.nodeInternals.get(nodeId);

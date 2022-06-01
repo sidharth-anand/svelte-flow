@@ -1,23 +1,23 @@
 <script lang="ts">
   import SmoothStepEdge from "./smoothstepedge.svelte";
 
-  import { Position } from "../../types";
+  import type { Position } from "../../types";
 
   export let sourceX: number;
   export let sourceY: number;
   export let targetX: number;
   export let targetY: number;
 
-  export let label: string = "";
-  export let showLabelBg: boolean = true;
-  export let labelBgPadding: Array<number> = [2, 4];
-  export let labelBgBorderRadius: number = 2;
+  export let label: string;
+  export let showLabelBg: boolean;
+  export let labelBgPadding: Array<number>;
+  export let labelBgBorderRadius: number;
 
-  export let sourcePosition: Position = Position.Bottom;
-  export let targetPosition: Position = Position.Top;
+  export let sourcePosition: Position;
+  export let targetPosition: Position;
 
-  export let markerStart: string = null;
-  export let markerEnd: string = null;
+  export let markerStart: string;
+  export let markerEnd: string;
 </script>
 
 <SmoothStepEdge

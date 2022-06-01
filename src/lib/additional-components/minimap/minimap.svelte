@@ -14,7 +14,6 @@
     | ((node: Node<NodeData>) => string);
 
   export let nodeClass: MiniMapAttribute = "";
-  export let maskColor: string = "#E5ECEC";
 
   const elementWidth: number = $$props?.style?.width || defaultWidth;
   const elementHeight: number = $$props?.style?.height || defaultHeight;
@@ -82,7 +81,12 @@
       offset * 2}h{-width -
       offset *
         2}z M{viewBoundingBox.x},{viewBoundingBox.y}h{viewBoundingBox.width}v{viewBoundingBox.height}h{-viewBoundingBox.width}z"
-    fill={maskColor}
     fill-rule="evenodd"
   />
 </svg>
+
+<style>
+  .svelte-flow .svelte-flow__minimap .svelte-flow__minimap-mask {
+    fill: "#E5ECEC";
+  }
+</style>

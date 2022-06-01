@@ -2,10 +2,6 @@
   import { store } from "../../store";
 
   $: transformStyle = `translate(${$store.transform[0]}px, ${$store.transform[1]}px) scale(${$store.transform[2]})`;
-
-  $: {
-    console.log($store.transform);
-  }
 </script>
 
 <div

@@ -1,7 +1,5 @@
 import type { Connection } from "./general";
-import type { HandleElement, HandleType } from "./handles";
 import type { Node } from "./node";
-import type { Position } from "./geometry";
 
 export enum MarkerType {
     Arrow = 'arrow',

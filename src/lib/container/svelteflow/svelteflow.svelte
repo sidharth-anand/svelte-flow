@@ -21,8 +21,6 @@
 
   import GraphView from "../graph/graphview.svelte";
 
-  //TODO: add support for custom node and edge types
-
   type EventTypes = {
     "flow:init": SvelteFlowInstance;
   };
@@ -85,6 +83,7 @@
 
   export let nodeTypes: NodeTypes = {};
   export let edgeTypes: EdgeTypes = {};
+
   export let connectionLineComponent: typeof SvelteComponent = null;
 
   const dispatch = createEventDispatcher<EventTypes>();

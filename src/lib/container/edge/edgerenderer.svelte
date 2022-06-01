@@ -24,13 +24,13 @@
     EdgeTypes,
   } from "../../types";
 
-  export let edgeTypes: EdgeTypes = {};
+  export let edgeTypes: EdgeTypes;
   export let connectionLineComponent: typeof SvelteComponent = null;
   export let connectionLineType: ConnectionLineType;
-  export let onlyRenderVisibleElements: boolean = true;
+  export let onlyRenderVisibleElements: boolean;
   export let defaultMarkerColor: string;
-  export let edgeUpdaterRadius: number | null = null;
-  export let noPanClassName: string = "";
+  export let edgeUpdaterRadius: number;
+  export let noPanClassName: string;
 
   const edges = visibleEdges(onlyRenderVisibleElements, $store.nodeInternals);
   $: edgeTree = groupEdgesByZLevel($edges, $store.nodeInternals);
@@ -122,8 +122,6 @@
   };
 
   //TODO: Add connection slot to ConnectionLine
-  //TODO: Let events bubble up from WrapEdge
-  //TODO: Add support for custom edge types
 </script>
 
 {#each edgeTree as { level, edges, isMaxLevel } (level)}
@@ -187,12 +185,12 @@
               let:animated
             >
               <svelte:component
-                this={EdgeTypes[edge.type ?? ConnectionLineType.Bezier]}
+                this={EdgeTypes[edge.type]}
                 slot="edge"
                 label={edge.label}
-                showLabelBg={edge.labelShowBg ?? true}
-                labelBgPadding={edge.labelBgPadding ?? [2, 4]}
-                labelBgBorderRadius={edge.labelBgBorderRadius ?? 2}
+                showLabelBg={edge.labelShowBg}
+                labelBgPadding={edge.labelBgPadding}
+                labelBgBorderRadius={edge.labelBgBorderRadius}
                 {id}
                 {data}
                 {sourcePosition}

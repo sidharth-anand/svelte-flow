@@ -1,6 +1,5 @@
 import type { XYPosition, Position, CoordinateExtent } from "./geometry";
 import type { HandleElement } from "./handles";
-import type { SnapGrid } from "./general";
 
 export type NodeHandleBounds = {
     source: HandleElement[] | null;

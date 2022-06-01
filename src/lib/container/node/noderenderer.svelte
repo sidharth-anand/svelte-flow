@@ -10,13 +10,11 @@
 
   import { NodeTypes, Position } from "../../types";
 
-  //TODO: add support for custom node types
-
-  export let nodeTypes: NodeTypes = {};
+  export let nodeTypes: NodeTypes;
   export let selectNodesOnDrag: boolean;
   export let onlyRenderVisibleElements: boolean;
-  export let noPanClassName: string = "";
-  export let noDragClassName: string = "";
+  export let noPanClassName: string;
+  export let noDragClassName: string;
 
   const nodes = visibleNodes(onlyRenderVisibleElements);
 

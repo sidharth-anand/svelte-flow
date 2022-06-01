@@ -13,23 +13,23 @@
 
   export let selectionKeyPressed: boolean;
 
-  export let zoomOnScroll: boolean = true;
-  export let zoomOnPinch: boolean = true;
-  export let zoomOnDoubleClick: boolean = true;
+  export let zoomOnScroll: boolean;
+  export let zoomOnPinch: boolean;
+  export let zoomOnDoubleClick: boolean;
 
-  export let panOnScroll: boolean = false;
-  export let panOnDrag: boolean = true;
-  export let panOnScrollSpeed: number = 0.5;
-  export let panOnScrollMode: PanOnScrollMode = PanOnScrollMode.Free;
+  export let panOnScroll: boolean;
+  export let panOnDrag: boolean;
+  export let panOnScrollSpeed: number;
+  export let panOnScrollMode: PanOnScrollMode;
 
-  export let defaultPosition: [number, number] = [0, 0];
-  export let defaultZoom: number = 1;
+  export let defaultPosition: [number, number];
+  export let defaultZoom: number;
 
-  export let zoomActivationKeyCode: KeyCode = null;
-  export let preventScrolling: boolean = true;
+  export let zoomActivationKeyCode: KeyCode;
+  export let preventScrolling: boolean;
 
-  export let noWheelClassName: string = "";
-  export let noPanClassName: string = "";
+  export let noWheelClassName: string;
+  export let noPanClassName: string;
 
   type EventTypes = {
     "pane:move:start": Viewport;

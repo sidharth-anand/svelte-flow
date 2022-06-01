@@ -41,16 +41,16 @@
   export let id: string;
   export let type: string;
 
-  export let data: T | null = null;
+  export let data: T;
 
-  export let selected: boolean = false;
-  export let animated: boolean = false;
+  export let selected: boolean;
+  export let animated: boolean;
 
   export let source: string;
   export let target: string;
 
-  export let sourceHandleId: string | null = null;
-  export let targetHandleId: string | null = null;
+  export let sourceHandleId: string;
+  export let targetHandleId: string;
 
   export let sourceX: number;
   export let sourceY: number;
@@ -60,13 +60,13 @@
   export let sourcePosition: Position = Position.Bottom;
   export let targetPosition: Position = Position.Top;
 
-  export let elementsSelectable: boolean = true;
+  export let elementsSelectable: boolean;
   export let clickable: boolean = true;
 
-  export let edgeUpdaterRadius: number | null = null;
+  export let edgeUpdaterRadius: number;
 
-  export let markerStart: EdgeMarkerType | null = null;
-  export let markerEnd: EdgeMarkerType | null = null;
+  export let markerStart: EdgeMarkerType;
+  export let markerEnd: EdgeMarkerType;
 
   const dispatch = createEventDispatcher<EventTypes>();
 

@@ -3,7 +3,7 @@
 
   import { onInitHandler } from "../../store/oninithandler";
 
-  import {
+  import type {
     ConnectionLineType,
     KeyCode,
     PanOnScrollMode,
@@ -17,32 +17,30 @@
   import EdgeRenderer from "../edge/edgerenderer.svelte";
   import Viewport from "../viewport/viewport.svelte";
 
-  //TODO: add support for custom node and edge types
-
   export let connectionLineType: ConnectionLineType;
 
-  export let selectionKeyCode: KeyCode | null = null;
-  export let deleteKeyCode: KeyCode | null = null;
-  export let multiSelectionKeyCode: KeyCode | null = null;
-  export let zoomActivationKeyCode: KeyCode | null = null;
+  export let selectionKeyCode: KeyCode;
+  export let deleteKeyCode: KeyCode;
+  export let multiSelectionKeyCode: KeyCode;
+  export let zoomActivationKeyCode: KeyCode;
 
-  export let onlyRenderVisibleElements: boolean = true;
+  export let onlyRenderVisibleElements: boolean;
 
   export let selectNodesOnDrag: boolean;
 
-  export let defaultPosition: [number, number] = [0, 0];
-  export let defaultZoom: number = 1;
+  export let defaultPosition: [number, number];
+  export let defaultZoom: number;
 
-  export let preventScrolling: boolean = true;
+  export let preventScrolling: boolean;
 
-  export let zoomOnScroll: boolean = true;
-  export let zoomOnPinch: boolean = true;
-  export let zoomOnDoubleClick: boolean = true;
+  export let zoomOnScroll: boolean;
+  export let zoomOnPinch: boolean;
+  export let zoomOnDoubleClick: boolean;
 
-  export let panOnScroll: boolean = false;
-  export let panOnDrag: boolean = true;
-  export let panOnScrollSpeed: number = 0.5;
-  export let panOnScrollMode: PanOnScrollMode = PanOnScrollMode.Free;
+  export let panOnScroll: boolean;
+  export let panOnDrag: boolean;
+  export let panOnScrollSpeed: number;
+  export let panOnScrollMode: PanOnScrollMode;
 
   export let defaultMarkerColor: string;
   export let edgeUpdaterRadius: number;
@@ -51,10 +49,13 @@
   export let noPanClassName: string;
   export let noWheelClassName: string;
 
+  //TODO: onInit must be an event not a callback
+
   export let onInit: OnInit | null = null;
 
-  export let nodeTypes: NodeTypes = {};
-  export let edgeTypes: EdgeTypes = {};
+  export let nodeTypes: NodeTypes;
+  export let edgeTypes: EdgeTypes;
+
   export let connectionLineComponent: typeof SvelteComponent = null;
 
   onInitHandler(onInit);
@@ -90,6 +91,7 @@
 >
   <Viewport>
     <EdgeRenderer
+      {connectionLineComponent}
       {connectionLineType}
       {onlyRenderVisibleElements}
       {defaultMarkerColor}

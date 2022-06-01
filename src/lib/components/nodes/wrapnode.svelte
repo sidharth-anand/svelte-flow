@@ -28,32 +28,32 @@
   //TODO: data is generic
   export let data: any;
 
-  export let selected: boolean = false;
-  export let isConnectable: boolean = true;
+  export let selected: boolean;
+  export let isConnectable: boolean;
 
   export let xPos: number;
   export let yPos: number;
 
-  export let isSelectable: boolean = true;
-  export let isDraggable: boolean = true;
-  export let selectNodesOnDrag: boolean = false;
+  export let isSelectable: boolean;
+  export let isDraggable: boolean;
+  export let selectNodesOnDrag: boolean;
 
   export let sourcePosition: Position;
   export let targetPosition: Position;
 
-  export let hidden: boolean = false;
-  export let snapToGrid: boolean = false;
-  export let snapGrid: SnapGrid | null = null;
-  export let dragging: boolean = false;
+  export let hidden: boolean;
+  export let snapToGrid: boolean;
+  export let snapGrid: SnapGrid;
+  export let dragging: boolean;
 
-  export let resizeObserver: ResizeObserver | null = null;
-  export let dragHandle: string | null = null;
+  export let resizeObserver: ResizeObserver;
+  export let dragHandle: string;
 
   export let zIndex: number;
   export let isParent: boolean;
 
-  export let noPanClassName: string = "";
-  export let noDragClassName: string = "";
+  export let noPanClassName: string;
+  export let noDragClassName: string;
 
   const dispatch = createEventDispatcher<EventTypes>();
 

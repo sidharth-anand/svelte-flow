@@ -1,7 +1,7 @@
 <script lang="ts">
   import BaseEdge from "./baseedge.svelte";
 
-  import { Position } from "../../types";
+  import type { Position } from "../../types";
 
   import { getSmoothStepPath } from "./smoothstep";
   import { getCenter } from "./utils";
@@ -11,18 +11,18 @@
   export let targetX: number;
   export let targetY: number;
 
-  export let label: string = "";
-  export let showLabelBg: boolean = true;
-  export let labelBgPadding: Array<number> = [2, 4];
-  export let labelBgBorderRadius: number = 2;
+  export let label: string;
+  export let showLabelBg: boolean;
+  export let labelBgPadding: Array<number>;
+  export let labelBgBorderRadius: number;
 
-  export let sourcePosition: Position = Position.Bottom;
-  export let targetPosition: Position = Position.Top;
+  export let sourcePosition: Position;
+  export let targetPosition: Position;
 
-  export let markerStart: string = null;
-  export let markerEnd: string = null;
+  export let markerStart: string;
+  export let markerEnd: string;
 
-  export let borderRadius: number = 5;
+  export let borderRadius: number;
 
   $: params = {
     sourceX,

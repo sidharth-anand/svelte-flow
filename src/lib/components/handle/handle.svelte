@@ -4,7 +4,7 @@
   import { store } from "../../store";
 
   import { NodeIdKey } from "../../contexts/nodeid";
-  import { Connection, Position, OnConnect, HandleType } from "../../types";
+  import type { Connection, Position, OnConnect, HandleType } from "../../types";
   import { checkElementBelowIsValid, onMouseDown } from "./handler";
   import { getHostForElement } from "../../utils";
   import { addEdge } from "../../utils/graph";
@@ -12,10 +12,9 @@
   const alwaysValid = () => true;
 
   export let id: string = null;
-  export let type: HandleType = "source";
-  export let position: Position = Position.Top;
-  export let isConnectable: boolean = true;
-  export let onConnect: OnConnect = null;
+  export let type: HandleType;
+  export let position: Position;
+  export let isConnectable: boolean;
   export let isValidConnection: (connection: Connection) => boolean = alwaysValid;
 
   const nodeId: string = getContext(NodeIdKey) as string;
@@ -38,8 +37,7 @@
       }));
     }
 
-    $store.onConnect?.(edgeParams);
-    onConnect?.(edgeParams);
+    $store.onConnect?.(edgeParams); 
   };
 
   const onMouseDownHandler = (event: MouseEvent) => {
