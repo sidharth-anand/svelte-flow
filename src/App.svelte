@@ -5,8 +5,6 @@
   import Controls from "./lib/additional-components/controls/controls.svelte";
   import MiniMap from "./lib/additional-components/minimap/minimap.svelte";
 
-  import { updateEdge } from "./lib/utils/graph";
-
   const nodes = [
     {
       id: "1",
@@ -80,16 +78,12 @@
     { id: "e4a-4b2", source: "4a", target: "4b2" },
     { id: "e4b1-4b2", source: "4b1", target: "4b2" },
   ];
-
-  function onEdgeUpdate(event) {
-    edges = updateEdge(event.detail.oldEdge, event.detail.newConnection, edges) as typeof edges;
-  }
 </script>
 
 <main>
   <h1>Svelte Flow!</h1>
 
-  <SvelteFlow {nodes} {edges} fitView={true} on:edge:update={onEdgeUpdate}>
+  <SvelteFlow {nodes} {edges} fitView={true}>
     <Background gap={10} size={0.8} />
     <Controls />
     <MiniMap />

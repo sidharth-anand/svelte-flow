@@ -119,10 +119,6 @@ export type SvelteFlowStore = {
     nodeInternals: NodeInternals;
     edges: Edge[];
     selectedNodesBbox: Rect;
-    onNodesChange: OnNodesChange | null;
-    onEdgesChange: OnEdgesChange | null;
-    hasDefaultNodes: boolean;
-    hasDefaultEdges: boolean;
 
     d3Zoom: ZoomBehavior<Element, unknown> | null;
     d3Selection: D3Selection<Element, unknown, null, undefined> | null;
@@ -154,32 +150,23 @@ export type SvelteFlowStore = {
 
     connectionStartHandle: StartHandle | null;
 
-    onConnect?: OnConnect;
-    onConneectStart?: OnConnectStart;
-    onConnectStop?: OnConnectStop;
-    onConnectEnd?: OnConnectEnd;
-
     connectOnClick: boolean;
     defaultEdgeOptions?: DefaultEdgeOptions;
 
     fitViewOnInit: boolean;
     fitViewOnInitDone: boolean;
     fitViewOnInitOptions: FitViewOptions | undefined;
-
-    onNodesDelete?: OnNodesDelete;
-    onEdgesDelete?: OnEdgesDelete;
 };
 
 export type SvelteFlowActions = {
     setNodes: (nodes: Node[]) => void;
     setEdges: (edges: Edge[]) => void;
-    setDefaultNodesAndEdges: (nodes?: Node[], edges?: Edge[]) => void;
-    updateNodeDimensions: (updates: NodeDimensionUpdate[]) => void;
-    updateNodePosition: (update: NodeDiffUpdate) => void;
-    resetSelectedElements: () => void;
-    unselectNodesAndEdges: () => void;
-    addSelectedNodes: (nodeIds: string[]) => void;
-    addSelectedEdges: (edgeIds: string[]) => void;
+    updateNodeDimensions: (updates: NodeDimensionUpdate[]) => NodeChange[];
+    updateNodePosition: (update: NodeDiffUpdate) => NodeChange[];
+    resetSelectedElements: () => [NodeChange[], EdgeChange[]];
+    unselectNodesAndEdges: () => [NodeChange[], EdgeChange[]];
+    addSelectedNodes: (nodeIds: string[]) => NodeChange[];
+    addSelectedEdges: (edgeIds: string[]) => [NodeChange[], EdgeChange[]];
     setMinZoom: (minZoom: number) => void;
     setMaxZoom: (maxZoom: number) => void;
     setTranslateExtent: (translateExtent: CoordinateExtent) => void;

@@ -7,7 +7,13 @@
 
   import { NodeIdKey } from "../../contexts/nodeid";
 
-  import type { SnapGrid, Node, Position } from "../../types";
+  import type {
+    SnapGrid,
+    Node,
+    Position,
+    NodeChange,
+    EdgeChange,
+  } from "../../types";
   import { setContext } from "svelte";
 
   type EventTypes = {
@@ -20,6 +26,8 @@
     "node:drag:start": Node;
     "node:drag": Node;
     "node:drag:end": Node;
+    "nodes:change": NodeChange[];
+    "edges:change": EdgeChange[];
   };
 
   export let id: string;
@@ -65,13 +73,24 @@
 
   const hasPointerEvents = isSelectable || isDraggable;
 
-  $: pointerEventStyle = hasPointerEvents ? "all" : "none"; 
+  $: pointerEventStyle = hasPointerEvents ? "all" : "none";
 
-  $: grid = snapToGrid ? snapGrid : [1, 1]! as [number, number];
+  $: grid = snapToGrid ? snapGrid : ([1, 1]! as [number, number]);
 
-  const dispatchEvent = (eventName: keyof EventTypes) => {
+  const dispatchEvent = (
+    eventName: keyof Omit<EventTypes, "nodes:change" | "edges:change">
+  ) => {
     const node = $store.nodeInternals.get(id);
     dispatch(eventName, { ...node });
+  };
+
+  const dispatchChanges = <
+    E extends keyof Pick<EventTypes, "nodes:change" | "edges:change">
+  >(
+    eventName: E,
+    changes: EventTypes[E]
+  ) => {
+    if (changes.length) dispatch(eventName, changes);
   };
 
   const onMouseEnterHandler = (_: MouseEvent) =>
@@ -93,7 +112,7 @@
         }));
 
         if (!selected) {
-          store.addSelectedNodes([id]);
+          dispatchChanges("nodes:change", store.addSelectedNodes([id]));
         }
       }
 
@@ -111,13 +130,17 @@
       }));
 
       if (!selected) {
-        store.addSelectedNodes([id]);
+        dispatchChanges("nodes:change", store.addSelectedNodes([id]));
       }
     } else if (!selectNodesOnDrag && !selected && isSelectable) {
       if ($store.multiSelectionActive) {
-        store.addSelectedNodes([id]);
+        dispatchChanges("nodes:change", store.addSelectedNodes([id]));
       } else {
-        store.unselectNodesAndEdges();
+        const [nodeChanges, edgeChanges] = store.unselectNodesAndEdges();
+
+        dispatchChanges("nodes:change", nodeChanges);
+        dispatchChanges("edges:change", edgeChanges);
+
         store.update((state) => ({
           ...state,
           nodesSelectionActive: false,
@@ -131,17 +154,17 @@
   const onDrag = (
     event: CustomEvent<{ offsetX: number; offsetY: number; domRect: DOMRect }>
   ) => {
-    console.log("asdasdasd", xPos, yPos, event.detail, event);
-
-    store.updateNodePosition({
-      id,
-      dragging: true,
-      diff: {
-        x: event.detail.offsetX - xPos,
-        y: event.detail.offsetY - yPos,
-      },
-    });
-
+    dispatch(
+      "nodes:change",
+      store.updateNodePosition({
+        id,
+        dragging: true,
+        diff: {
+          x: event.detail.offsetX - xPos,
+          y: event.detail.offsetY - yPos,
+        },
+      })
+    );
     const node = $store.nodeInternals.get(id);
 
     dispatch("node:drag", {
@@ -165,7 +188,7 @@
 
     if (!dragging) {
       if (isSelectable && !selectNodesOnDrag && !selected) {
-        store.addSelectedNodes([id]);
+        dispatchChanges("nodes:change", store.addSelectedNodes([id]));
       }
 
       dispatchEvent("node:click");
@@ -173,10 +196,10 @@
       return;
     }
 
-    store.updateNodePosition({
+    dispatch('nodes:change', store.updateNodePosition({
       id,
       dragging: false,
-    });
+    }));
 
     if (node) {
       dispatch("node:drag:end", {
@@ -209,13 +232,16 @@
         prevTargetPosition = targetPosition;
       }
 
-      store.updateNodeDimensions([
-        {
-          id,
-          nodeElement,
-          forceUpdate: true,
-        },
-      ]);
+      dispatchChanges(
+        "nodes:change",
+        store.updateNodeDimensions([
+          {
+            id,
+            nodeElement,
+            forceUpdate: true,
+          },
+        ])
+      );
     }
   }
 
@@ -231,13 +257,14 @@
       grid: grid,
       position: {
         x: xPos,
-        y: yPos
+        y: yPos,
       },
     }}
     on:neodrag:start={onDragStart}
     on:neodrag={onDrag}
     on:neodrag:end={onDragStop}
-    class="svelte-flow__node svelte-flow__node-{type} {noPanClassName} {$$props.class || ""}"
+    class="svelte-flow__node svelte-flow__node-{type} {noPanClassName} {$$props.class ||
+      ''}"
     class:selected
     class:selectable={isSelectable}
     class:parent={isParent}

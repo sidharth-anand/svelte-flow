@@ -14,8 +14,6 @@ import type {
   EdgeSelectionChange,
   NodeSelectionChange,
   NodePositionChange,
-  OnNodesChange,
-  OnEdgesChange,
 } from "../types";
 import { getHandleBounds } from "../components/nodes/utils";
 import { createSelectionChange, getSelectionChanges } from "../utils/changes";
@@ -29,12 +27,16 @@ import {
 } from "./utils";
 import initialState from "./initialState";
 
-type Invalidator<T> = (value?: T) => void
+type Invalidator<T> = (value?: T) => void;
 
 export type StoreType = SvelteFlowActions & {
-  subscribe: (this: void, run: Subscriber<SvelteFlowStore>, invalidate?: Invalidator<SvelteFlowStore>) => Unsubscriber;
+  subscribe: (
+    this: void,
+    run: Subscriber<SvelteFlowStore>,
+    invalidate?: Invalidator<SvelteFlowStore>
+  ) => Unsubscriber;
   update: (this: void, updater: Updater<SvelteFlowStore>) => void;
-}
+};
 
 function createStore(): StoreType {
   const { subscribe, set, update } = writable<SvelteFlowStore>(initialState);
@@ -63,28 +65,8 @@ function createStore(): StoreType {
         }
       });
     },
-    setDefaultNodesAndEdges: (nodes?: Node[], edges?: Edge[]) => {
-      update((state) => {
-        const hasDefaultNodes = typeof nodes !== "undefined";
-        const hasDefaultEdges = typeof edges !== "undefined";
-
-        const nodeInternals = hasDefaultNodes
-          ? createNodeInternals(nodes, new Map())
-          : new Map();
-        const nextEdges = hasDefaultEdges ? edges : [];
-
-        return {
-          ...state,
-          nodeInternals,
-          edges: nextEdges,
-          hasDefaultNodes,
-          hasDefaultEdges,
-        };
-      });
-    },
     updateNodeDimensions: (updates: NodeDimensionUpdate[]) => {
       let changes: NodeDimensionChange[];
-      let onNodesChange: OnNodesChange | null;
 
       update((state) => {
         const {
@@ -94,8 +76,6 @@ function createStore(): StoreType {
           fitViewOnInitDone,
           fitViewOnInitOptions,
         } = state;
-
-        onNodesChange = state.onNodesChange;
 
         changes = updates.reduce<NodeDimensionChange[]>((res, update) => {
           const node = nodeInternals.get(update.id);
@@ -144,29 +124,17 @@ function createStore(): StoreType {
         };
       });
 
-      if (changes.length) onNodesChange?.(changes);
+      return changes;
     },
     updateNodePosition: ({ id, diff, dragging }: NodeDiffUpdate) => {
+      let changes: NodePositionChange[] = [];
+
       update((state) => {
-        const { onNodesChange, nodeExtent, nodeInternals, hasDefaultNodes } = state;
+        const { nodeExtent, nodeInternals } = state;
 
-        if (hasDefaultNodes || onNodesChange) {
-          const changes: NodePositionChange[] = [];
-
-          nodeInternals.forEach((node) => {
-            if (node.selected) {
-              if (!node.parentNode || !isParentSelected(node, nodeInternals)) {
-                changes.push(
-                  createPositionChange({
-                    node,
-                    diff,
-                    dragging,
-                    nodeExtent,
-                    nodeInternals,
-                  })
-                );
-              }
-            } else if (node.id === id) {
+        nodeInternals.forEach((node) => {
+          if (node.selected) {
+            if (!node.parentNode || !isParentSelected(node, nodeInternals)) {
               changes.push(
                 createPositionChange({
                   node,
@@ -177,45 +145,43 @@ function createStore(): StoreType {
                 })
               );
             }
-          });
-
-          if (changes?.length) {
-            if (hasDefaultNodes) {
-              const nodes = applyNodeChanges(
-                changes,
-                Array.from(nodeInternals.values())
-              );
-              const nextNodeInternals = createNodeInternals(
-                nodes,
-                nodeInternals
-              );
-
-              return {
-                ...state,
-                nodeInternals: nextNodeInternals,
-              };
-            }
+          } else if (node.id === id) {
+            changes.push(
+              createPositionChange({
+                node,
+                diff,
+                dragging,
+                nodeExtent,
+                nodeInternals,
+              })
+            );
           }
+        });
+
+        if (changes?.length) {
+          const nodes = applyNodeChanges(
+            changes,
+            Array.from(nodeInternals.values())
+          );
+          const nextNodeInternals = createNodeInternals(nodes, nodeInternals);
+
+          return {
+            ...state,
+            nodeInternals: nextNodeInternals,
+          };
         }
 
         return state;
       });
+
+      return changes;
     },
     addSelectedNodes: (selectedNodeIds: string[]) => {
       let changedNodes: NodeSelectionChange[];
-      let onNodesChange: OnNodesChange | null;
 
       update((state) => {
-        const {
-          multiSelectionActive,
-          nodeInternals,
-          hasDefaultNodes,
-          onEdgesChange,
-          hasDefaultEdges,
-          edges,
-        } = state;
-
-        onNodesChange = state.onNodesChange;
+        const { multiSelectionActive, nodeInternals, edges } =
+          state;
 
         let changedEdges: EdgeSelectionChange[] | null = null;
 
@@ -236,49 +202,33 @@ function createStore(): StoreType {
         };
 
         if (changedNodes.length) {
-          if (hasDefaultNodes) {
-            updatedState = {
-              ...updatedState,
-              nodeInternals: handleControlledNodeSelectionChange(
-                changedNodes,
-                nodeInternals
-              ),
-            };
-          }
+          updatedState = {
+            ...updatedState,
+            nodeInternals: handleControlledNodeSelectionChange(
+              changedNodes,
+              nodeInternals
+            ),
+          };
         }
 
         if (changedEdges?.length) {
-          if (hasDefaultEdges) {
-            updatedState = {
-              ...updatedState,
-              edges: handleControlledEdgeSelectionChange(changedEdges, edges),
-            };
-          }
+          updatedState = {
+            ...updatedState,
+            edges: handleControlledEdgeSelectionChange(changedEdges, edges),
+          };
         }
 
         return updatedState;
       });
 
-      onNodesChange?.(changedNodes);
+      return changedNodes;
     },
     addSelectedEdges: (selectedEdgeIds: string[]) => {
       let changedNodes: NodeSelectionChange[] = [];
-      let changedEdges: EdgeSelectionChange[] | null = null;
-
-      let onNodesChange: OnNodesChange | null = null;
-      let onEdgesChange: OnEdgesChange | null = null;
+      let changedEdges: EdgeSelectionChange[] = [];
 
       update((state) => {
-        const {
-          multiSelectionActive,
-          nodeInternals,
-          hasDefaultNodes,
-          hasDefaultEdges,
-          edges,
-        } = state;
-
-        onNodesChange = state.onNodesChange;
-        onEdgesChange = state.onEdgesChange;
+        const { multiSelectionActive, nodeInternals, edges } = state;
 
         if (multiSelectionActive) {
           changedEdges = selectedEdgeIds.map((edgeId) =>
@@ -297,49 +247,40 @@ function createStore(): StoreType {
         };
 
         if (changedEdges?.length) {
-          if (hasDefaultEdges) {
-            updatedState = {
-              ...updatedState,
-              edges: handleControlledEdgeSelectionChange(changedEdges, edges),
-            };
-          }
+          updatedState = {
+            ...updatedState,
+            edges: handleControlledEdgeSelectionChange(changedEdges, edges),
+          };
         }
 
         if (changedNodes?.length) {
-          if (hasDefaultNodes) {
-            updatedState = {
-              ...updatedState,
-              nodeInternals: handleControlledNodeSelectionChange(
-                changedNodes,
-                nodeInternals
-              ),
-            };
-          }
+          updatedState = {
+            ...updatedState,
+            nodeInternals: handleControlledNodeSelectionChange(
+              changedNodes,
+              nodeInternals
+            ),
+          };
         }
 
         return updatedState;
       });
 
-      onNodesChange?.(changedNodes);
-      onEdgesChange?.(changedEdges);
+      return [changedNodes, changedEdges];
     },
     unselectNodesAndEdges: () => {
+      let nodesToUnselect: NodeSelectionChange[] = [];
+      let edgesToUnselect: EdgeSelectionChange[] = [];
+
       update((state) => {
-        const {
-          nodeInternals,
-          edges,
-          onNodesChange,
-          onEdgesChange,
-          hasDefaultNodes,
-          hasDefaultEdges,
-        } = state;
+        const { nodeInternals, edges } = state;
         const nodes = Array.from(nodeInternals.values());
 
-        const nodesToUnselect = nodes.map((n) => {
+        nodesToUnselect = nodes.map((n) => {
           n.selected = false;
           return createSelectionChange(n.id, false);
         }) as NodeSelectionChange[];
-        const edgesToUnselect = edges.map((edge) =>
+        edgesToUnselect = edges.map((edge) =>
           createSelectionChange(edge.id, false)
         ) as EdgeSelectionChange[];
 
@@ -348,35 +289,26 @@ function createStore(): StoreType {
         };
 
         if (nodesToUnselect.length) {
-          if (hasDefaultNodes) {
-            updatedState = {
-              ...updatedState,
-              nodeInternals: handleControlledNodeSelectionChange(
-                nodesToUnselect,
-                nodeInternals
-              ),
-            };
-          }
-
-          onNodesChange?.(nodesToUnselect);
+          updatedState = {
+            ...updatedState,
+            nodeInternals: handleControlledNodeSelectionChange(
+              nodesToUnselect,
+              nodeInternals
+            ),
+          };
         }
 
         if (edgesToUnselect.length) {
-          if (hasDefaultEdges) {
-            updatedState = {
-              ...updatedState,
-              edges: handleControlledEdgeSelectionChange(
-                edgesToUnselect,
-                edges
-              ),
-            };
-          }
-
-          onEdgesChange?.(edgesToUnselect);
+          updatedState = {
+            ...updatedState,
+            edges: handleControlledEdgeSelectionChange(edgesToUnselect, edges),
+          };
         }
 
         return updatedState;
       });
+
+      return [nodesToUnselect, edgesToUnselect];
     },
     setMinZoom: (minZoom: number) => {
       update((state) => {
@@ -412,23 +344,19 @@ function createStore(): StoreType {
       });
     },
     resetSelectedElements: () => {
+      let nodesToUnselect: NodeSelectionChange[] = [];
+      let edgesToUnselect: EdgeSelectionChange[] = [];
+
       update((state) => {
-        const {
-          nodeInternals,
-          edges,
-          onNodesChange,
-          onEdgesChange,
-          hasDefaultNodes,
-          hasDefaultEdges,
-        } = state;
+        const { nodeInternals, edges } = state;
         const nodes = Array.from(nodeInternals.values());
 
-        const nodesToUnselect = nodes
+        nodesToUnselect = nodes
           .filter((e) => e.selected)
           .map((n) =>
             createSelectionChange(n.id, false)
           ) as NodeSelectionChange[];
-        const edgesToUnselect = edges
+        edgesToUnselect = edges
           .filter((e) => e.selected)
           .map((e) =>
             createSelectionChange(e.id, false)
@@ -439,35 +367,26 @@ function createStore(): StoreType {
         };
 
         if (nodesToUnselect.length) {
-          if (hasDefaultNodes) {
-            updatedState = {
-              ...updatedState,
-              nodeInternals: handleControlledNodeSelectionChange(
-                nodesToUnselect,
-                nodeInternals
-              ),
-            };
-          }
-
-          onNodesChange?.(nodesToUnselect);
+          updatedState = {
+            ...updatedState,
+            nodeInternals: handleControlledNodeSelectionChange(
+              nodesToUnselect,
+              nodeInternals
+            ),
+          };
         }
 
         if (edgesToUnselect.length) {
-          if (hasDefaultEdges) {
-            updatedState = {
-              ...updatedState,
-              edges: handleControlledEdgeSelectionChange(
-                edgesToUnselect,
-                edges
-              ),
-            };
-          }
-
-          onEdgesChange?.(edgesToUnselect);
+          updatedState = {
+            ...updatedState,
+            edges: handleControlledEdgeSelectionChange(edgesToUnselect, edges),
+          };
         }
 
         return updatedState;
       });
+
+      return [nodesToUnselect, edgesToUnselect];
     },
     setNodeExtent: (nodeExtent: CoordinateExtent) => {
       update((state) => {
@@ -492,7 +411,7 @@ function createStore(): StoreType {
   return {
     ...actions,
     subscribe,
-    update
+    update,
   };
 }
 

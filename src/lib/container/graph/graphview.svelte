@@ -1,21 +1,25 @@
 <script lang="ts">
-  import type { SvelteComponent } from "svelte";
+  import { SvelteComponent, createEventDispatcher } from "svelte";
 
-  import { onInitHandler } from "../../store/oninithandler";
+  import { svelteFlowStore } from "../../store/svelteflow";
 
   import type {
     ConnectionLineType,
     KeyCode,
     PanOnScrollMode,
-    OnInit,
     NodeTypes,
     EdgeTypes,
+    SvelteFlowInstance,
   } from "../../types";
 
   import FlowRenderer from "../flow/flowrenderer.svelte";
   import NodeRenderer from "../node/noderenderer.svelte";
   import EdgeRenderer from "../edge/edgerenderer.svelte";
   import Viewport from "../viewport/viewport.svelte";
+
+  type EventTypes = {
+    "flow:init": SvelteFlowInstance;
+  };
 
   export let connectionLineType: ConnectionLineType;
 
@@ -49,16 +53,20 @@
   export let noPanClassName: string;
   export let noWheelClassName: string;
 
-  //TODO: onInit must be an event not a callback
-
-  export let onInit: OnInit | null = null;
-
   export let nodeTypes: NodeTypes;
   export let edgeTypes: EdgeTypes;
 
   export let connectionLineComponent: typeof SvelteComponent = null;
 
-  onInitHandler(onInit);
+  const dispatch = createEventDispatcher<EventTypes>();
+
+  $: svelteFlowInstance = svelteFlowStore();
+
+  $: {
+    if ($svelteFlowInstance.viewportInitialized) {
+      dispatch("flow:init", $svelteFlowInstance);
+    }
+  }
 </script>
 
 <FlowRenderer
@@ -88,6 +96,10 @@
   on:selection:drag
   on:selection:drag:end
   on:selection:contextmenu
+  on:nodes:change
+  on:nodes:delete
+  on:edges:change
+  on:edges:delete
 >
   <Viewport>
     <EdgeRenderer
@@ -122,6 +134,7 @@
       on:node:drag:start
       on:node:drag
       on:node:drag:end
+      on:nodes:change
     />
   </Viewport>
 </FlowRenderer>

@@ -8,6 +8,7 @@
     KeyCode,
     PanOnScrollMode,
     Node,
+    Edge,
     NodeChange,
     EdgeChange,
   } from "../../types";
@@ -22,6 +23,10 @@
     "pane:click": null;
     "pane:contextmenu": null;
     "pane:scroll": null;
+    "nodes:change": NodeChange[];
+    "nodes:delete": Node[];
+    "edges:change": EdgeChange[];
+    "edges:delete": Edge[];
   };
 
   export let selectionKeyCode: KeyCode;
@@ -81,50 +86,38 @@
         return res;
       }, []);
 
-      if ($store.hasDefaultEdges || $store.hasDefaultNodes) {
-        if ($store.hasDefaultEdges) {
-          store.update((state) => ({
-            ...state,
-            edges: state.edges.filter(
-              (edge) => !edgeIdsToRemove.includes(edge.id)
-            ),
-          }));
-        }
+      store.update((state) => ({
+        ...state,
+        edges: state.edges.filter((edge) => !edgeIdsToRemove.includes(edge.id)),
+      }));
 
-        if ($store.hasDefaultNodes) {
-          nodesToRemove.forEach((node) => $store.nodeInternals.delete(node.id));
+      nodesToRemove.forEach((node) => $store.nodeInternals.delete(node.id));
 
-          store.update((state) => ({
-            ...state,
-            nodeInternals: new Map($store.nodeInternals),
-          }));
-        }
-      }
+      store.update((state) => ({
+        ...state,
+        nodeInternals: new Map($store.nodeInternals),
+      }));
 
       if (edgeIdsToRemove.length > 0) {
-        $store.onEdgesDelete?.(edgesToRemove);
+        dispatch("edges:delete", edgesToRemove);
 
-        if ($store.onEdgesChange) {
-          const edgeChanges: EdgeChange[] = edgeIdsToRemove.map((id) => ({
-            id,
-            type: "remove",
-          }));
+        const edgeChanges: EdgeChange[] = edgeIdsToRemove.map((id) => ({
+          id,
+          type: "remove",
+        }));
 
-          $store.onEdgesChange(edgeChanges);
-        }
+        dispatch("edges:change", edgeChanges);
       }
 
       if (nodesToRemove.length > 0) {
-        $store.onNodesDelete?.(nodesToRemove);
+        dispatch("nodes:delete", nodesToRemove);
 
-        if ($store.onNodesChange) {
-          const nodeChanges: NodeChange[] = nodesToRemove.map((node) => ({
-            id: node.id,
-            type: "remove",
-          }));
+        const nodeChanges: NodeChange[] = nodesToRemove.map((node) => ({
+          id: node.id,
+          type: "remove",
+        }));
 
-          $store.onNodesChange(nodeChanges);
-        }
+        dispatch("nodes:change", nodeChanges);
       }
 
       store.update((state) => ({
@@ -146,7 +139,11 @@
   const onClick = (event: MouseEvent) => {
     dispatch("pane:click");
 
-    store.resetSelectedElements();
+    const [nodeChanges, edgeChanges] = store.resetSelectedElements();
+
+    if (nodeChanges.length) dispatch("nodes:change", nodeChanges);
+    if (edgeChanges.length) dispatch("edges:change", edgeChanges);
+
     store.update((state) => ({
       ...state,
       nodesSelectionActive: false,
@@ -182,7 +179,7 @@
   on:pane:move:end
 >
   <slot />
-  <UserSelection selectionKeyPressed={$selectionKeyPressed} />
+  <UserSelection selectionKeyPressed={$selectionKeyPressed} on:nodes:change on:edges:change />
   {#if $store.nodesSelectionActive}
     <NodesSelection
       {noPanClassName}
@@ -190,6 +187,7 @@
       on:selection:drag
       on:selection:drag:end
       on:selection:contextmenu
+      on:nodes:change
     />
   {/if}
   <div

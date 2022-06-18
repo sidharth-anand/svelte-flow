@@ -18,6 +18,8 @@
 
   const nodes = visibleNodes(onlyRenderVisibleElements);
 
+  //TODO: replace resizeobserver with something less callback-y especially since id is available to the node as well as the wrapper
+
   const resizeObserver = new ResizeObserver(
     (entries: ResizeObserverEntry[]) => {
       const updates = entries.map((entry: ResizeObserverEntry) => ({
@@ -84,6 +86,7 @@
       on:node:drag:start
       on:node:drag
       on:node:drag:end
+      on:nodes:change
     >
       <svelte:fragment
         slot="node"

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, SvelteComponent } from "svelte";
+  import type { SvelteComponent } from "svelte";
 
   import { store } from "../../store";
 
@@ -13,23 +13,15 @@
     KeyCode,
     CoordinateExtent,
     FitViewOptions,
-    OnInit,
-    SvelteFlowInstance,
     NodeTypes,
     EdgeTypes
   } from "../../types";
 
   import GraphView from "../graph/graphview.svelte";
 
-  type EventTypes = {
-    "flow:init": SvelteFlowInstance;
-  };
-
   export let nodes: Node[] = [];
   export let edges: Edge[] = [];
 
-  export let defaultNodes: Node[] = [];
-  export let defaultEdges: Edge[] = [];
   export let defaultEdgeOptions: DefaultEdgeOptions = null;
 
   export let connectionMode: ConnectionMode = ConnectionMode.Strict;
@@ -86,12 +78,6 @@
 
   export let connectionLineComponent: typeof SvelteComponent = null;
 
-  const dispatch = createEventDispatcher<EventTypes>();
-
-  const onInit: OnInit = (instance: SvelteFlowInstance) => {
-    dispatch("flow:init", instance);
-  };
-
   $: {
     const valuesToUpdate = {
       defaultEdgeOptions,
@@ -115,15 +101,6 @@
         }));
       }
     });
-  }
-
-  $: {
-    store.setDefaultNodesAndEdges(defaultNodes, defaultEdges);
-  }
-
-  $: {
-    store.setNodes(defaultNodes);
-    store.setEdges(defaultEdges);
   }
 
   $: {
@@ -151,7 +128,6 @@
 
 <div class="svelte-flow {$$props.class || ''}">
   <GraphView
-    {onInit}
     {connectionLineType}
     {selectionKeyCode}
     {defaultMarkerColor}
@@ -176,6 +152,7 @@
     {noWheelClassName}
     {nodeTypes}
     {edgeTypes}
+    on:flow:init
     on:node:click
     on:edge:click
     on:node:mouseenter
@@ -203,6 +180,10 @@
     on:edge:mouseenter
     on:edge:mousemove
     on:edge:mouseleave
+    on:nodes:change
+    on:nodes:delete
+    on:edges:change
+    on:edges:delete
   />
   <slot />
 </div>

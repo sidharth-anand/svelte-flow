@@ -43,61 +43,48 @@ export function svelteFlowStore<NodeData = any, EdgeData = any>(): Readable<
         const nextNodes =
           typeof payload === "function" ? payload(nodes) : payload;
 
-        if ($store.hasDefaultNodes) {
-          setNodes(nextNodes);
-        } else if ($store.onNodesChange) {
-          const changes = nextNodes.map(
-            (node) =>
-              ({
-                item: node,
-                type: "reset",
-              } as NodeResetChange<NodeData>)
-          );
-          $store.onNodesChange(changes);
-        }
+        setNodes(nextNodes);
+        const changes = nextNodes.map(
+          (node) =>
+            ({
+              item: node,
+              type: "reset",
+            } as NodeResetChange<NodeData>)
+        );
+        $store.onNodesChange(changes);
       };
 
       const setEdges: Instance.SetEdges<EdgeData> = (payload) => {
         const nextEdges =
           typeof payload === "function" ? payload($store.edges || []) : payload;
 
-        if ($store.hasDefaultEdges) {
-          setEdges(nextEdges);
-        } else if ($store.onEdgesChange) {
-          const changes = nextEdges.map(
-            (edge) =>
-              ({ item: edge, type: "reset" } as EdgeResetChange<EdgeData>)
-          );
-          $store.onEdgesChange(changes);
-        }
+        setEdges(nextEdges);
+        const changes = nextEdges.map(
+          (edge) => ({ item: edge, type: "reset" } as EdgeResetChange<EdgeData>)
+        );
+        $store.onEdgesChange(changes);
       };
 
       const addNodes: Instance.AddNodes<NodeData> = (payload) => {
         const nodes = Array.isArray(payload) ? payload : [payload];
 
-        if ($store.hasDefaultNodes) {
-          const currentNodes = Array.from($store.nodeInternals.values());
-          const nextNodes = [...currentNodes, ...nodes];
-          setNodes(nextNodes);
-        } else if ($store.onNodesChange) {
-          const changes = nodes.map(
-            (node) => ({ item: node, type: "add" } as NodeAddChange<NodeData>)
-          );
-          $store.onNodesChange(changes);
-        }
+        const currentNodes = Array.from($store.nodeInternals.values());
+        const nextNodes = [...currentNodes, ...nodes];
+        setNodes(nextNodes);
+        const changes = nodes.map(
+          (node) => ({ item: node, type: "add" } as NodeAddChange<NodeData>)
+        );
+        $store.onNodesChange(changes);
       };
 
       const addEdges: Instance.AddEdges<EdgeData> = (payload) => {
         const nextEdges = Array.isArray(payload) ? payload : [payload];
 
-        if ($store.hasDefaultEdges) {
-          setEdges([...$store.edges, ...nextEdges]);
-        } else if ($store.onEdgesChange) {
-          const changes = nextEdges.map(
-            (edge) => ({ item: edge, type: "add" } as EdgeAddChange<EdgeData>)
-          );
-          $store.onEdgesChange(changes);
-        }
+        setEdges([...$store.edges, ...nextEdges]);
+        const changes = nextEdges.map(
+          (edge) => ({ item: edge, type: "add" } as EdgeAddChange<EdgeData>)
+        );
+        $store.onEdgesChange(changes);
       };
 
       const toObject: Instance.ToObject<NodeData, EdgeData> = () => {

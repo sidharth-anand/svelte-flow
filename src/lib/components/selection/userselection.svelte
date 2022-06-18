@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
   import { store } from "../../store";
 
   import type { XYPosition, NodeChange, EdgeChange, Rect } from "../../types";
@@ -12,7 +14,14 @@
     draw: boolean;
   };
 
+  type EventTypes = {
+    'nodes:change': NodeChange[];
+    'edges:change': EdgeChange[];
+  }
+
   export let selectionKeyPressed: boolean;
+
+  const dispatch = createEventDispatcher<EventTypes>();
 
   function getMousePosition(
     event: MouseEvent,
@@ -115,7 +124,7 @@
         selectedNodeIds
       ) as NodeChange[];
       if (changes.length) {
-        $store.onNodesChange?.(changes);
+        dispatch('nodes:change', changes);
       }
     }
 
@@ -126,7 +135,7 @@
         selectedEdgeIds
       ) as EdgeChange[];
       if (changes.length) {
-        $store.onEdgesChange?.(changes);
+        dispatch('edges:change', changes);
       }
     }
 
@@ -156,7 +165,7 @@
 
 {#if !skipRender}
   <div
-    class="svelte-flow__selectionpane svelte-flow__container {$$props.class || ""}"
+    class="svelte-flow__selectionpane svelte-flow__container {$$props.class || ''}"
     on:mousedown={onMouseDown}
     on:mousemove={onMouseMove}
     on:mouseleave={onMouseLeave}

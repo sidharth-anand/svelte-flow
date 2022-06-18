@@ -168,12 +168,15 @@
             on:edge:update:start
             on:edge:update
             on:edge:update:end
+            on:nodes:change
+            on:edges:change
           >
             <svelte:fragment
               slot="edge"
               let:markerStart
               let:markerEnd
               let:id
+              let:type
               let:data
               let:sourceX
               let:sourceY
@@ -185,7 +188,7 @@
               let:animated
             >
               <svelte:component
-                this={EdgeTypes[edge.type]}
+                this={EdgeTypes[type]}
                 slot="edge"
                 label={edge.label}
                 showLabelBg={edge.labelShowBg}

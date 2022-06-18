@@ -4,7 +4,7 @@
   import { store } from "../../store";
 
   import { NodeIdKey } from "../../contexts/nodeid";
-  import type { Connection, Position, OnConnect, HandleType } from "../../types";
+  import type { Connection, Position, HandleType } from "../../types";
   import { checkElementBelowIsValid, onMouseDown } from "./handler";
   import { getHostForElement } from "../../utils";
   import { addEdge } from "../../utils/graph";
@@ -15,7 +15,8 @@
   export let type: HandleType;
   export let position: Position;
   export let isConnectable: boolean;
-  export let isValidConnection: (connection: Connection) => boolean = alwaysValid;
+  export let isValidConnection: (connection: Connection) => boolean =
+    alwaysValid;
 
   const nodeId: string = getContext(NodeIdKey) as string;
   const handleId = id || null;
@@ -29,15 +30,13 @@
       ...params,
     };
 
-    if ($store.hasDefaultEdges) {
-      const edges = $store.edges;
-      store.update((state) => ({
-        ...state,
-        edges: addEdge(edgeParams, edges),
-      }));
-    }
+    const edges = $store.edges;
+    store.update((state) => ({
+      ...state,
+      edges: addEdge(edgeParams, edges),
+    }));
 
-    $store.onConnect?.(edgeParams); 
+    $store.onConnect?.(edgeParams);
   };
 
   const onMouseDownHandler = (event: MouseEvent) => {
@@ -106,7 +105,8 @@
   data-handleid={handleId}
   data-nodeid={nodeId}
   data-handlepos={position}
-  class="svelte-flow__handle svelte-flow__handle-{position} nodrag {$$props.class || ""}"
+  class="svelte-flow__handle svelte-flow__handle-{position} nodrag {$$props.class ||
+    ''}"
   class:source={!isTarget}
   class:target={isTarget}
   class:connectable={isConnectable}

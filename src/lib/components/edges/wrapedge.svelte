@@ -11,6 +11,8 @@
     EdgeMarkerType,
     Position,
     HandleType,
+    NodeChange,
+    EdgeChange,
   } from "../../types";
   import { onMouseDown } from "../handle/handler";
   import { getMarkerId } from "../../utils/graph";
@@ -36,6 +38,8 @@
       edge: Edge;
       handleType: HandleType;
     };
+    "nodes:change": NodeChange[];
+    "edges:change": EdgeChange[];
   };
 
   export let id: string;
@@ -103,7 +107,14 @@
         ...state,
         nodeSelectionActive: false,
       }));
-      store.addSelectedEdges([edgeElement.id]);
+
+      const [nodeChanges, edgeChanges] = store.addSelectedEdges([
+        edgeElement.id,
+      ]);
+
+      if (nodeChanges.length) dispatch("nodes:change", nodeChanges);
+
+      if (edgeChanges.length) dispatch("edges:change", edgeChanges);
     }
 
     dispatch("edge:click", edgeElement);
@@ -211,6 +222,7 @@
     {sourceY}
     {targetX}
     {targetY}
+    {type}
     {data}
     {sourcePosition}
     {targetPosition}

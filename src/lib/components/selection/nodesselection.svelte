@@ -5,7 +5,7 @@
 
   import { store } from "../../store";
 
-  import type { Node } from "../../types";
+  import type { Node, NodeChange } from "../../types";
   import { getRectOfNodes } from "../../utils/graph";
 
   type EventTypes = {
@@ -13,6 +13,7 @@
     "selection:drag": Node[];
     "selection:drag:end": Node[];
     "selection:contextmenu": Node[];
+    "nodes:change": NodeChange[];
   };
 
   export let noPanClassName: string;
@@ -43,13 +44,16 @@
   const onDrag = (
     event: CustomEvent<{ offsetX: number; offsetY: number; domRect: DOMRect }>
   ) => {
-    store.updateNodePosition({
-      diff: {
-        x: event.detail.offsetX,
-        y: event.detail.offsetY,
-      },
-      dragging: true,
-    });
+    dispatch(
+      "nodes:change",
+      store.updateNodePosition({
+        diff: {
+          x: event.detail.offsetX - selectedNodesBBox.x,
+          y: event.detail.offsetY - selectedNodesBBox.y,
+        },
+        dragging: true,
+      })
+    );
 
     dispatchEvent("selection:drag");
   };
@@ -57,9 +61,12 @@
   const onStop = (
     _: CustomEvent<{ offsetX: number; offsetY: number; domRect: DOMRect }>
   ) => {
-    store.updateNodePosition({
-      dragging: false,
-    });
+    dispatch(
+      "nodes:change",
+      store.updateNodePosition({
+        dragging: false,
+      })
+    );
 
     dispatchEvent("selection:drag:end");
   };
@@ -72,7 +79,8 @@
 
 {#if !skipRender}
   <div
-    class="svelte-flow__nodesselection svelte-flow__container {noPanClassName} {$$props.class || null}"
+    class="svelte-flow__nodesselection svelte-flow__container {noPanClassName} {$$props.class ||
+      null}"
     style:transform={transformStyle}
   >
     <div
