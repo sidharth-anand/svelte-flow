@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SvelteComponent } from "svelte";
+  import { SvelteComponent, createEventDispatcher } from "svelte";
 
   import { store } from "../../store";
 
@@ -14,10 +14,17 @@
     CoordinateExtent,
     FitViewOptions,
     NodeTypes,
-    EdgeTypes
+    EdgeTypes,
+    NodeChange,
+    EdgeChange,
   } from "../../types";
 
   import GraphView from "../graph/graphview.svelte";
+
+  type EventTypes = {
+    "nodes:change": NodeChange[];
+    "edges:change": EdgeChange[];
+  };
 
   export let nodes: Node[] = [];
   export let edges: Edge[] = [];
@@ -78,6 +85,8 @@
 
   export let connectionLineComponent: typeof SvelteComponent = null;
 
+  const dispatch = createEventDispatcher();
+
   $: {
     const valuesToUpdate = {
       defaultEdgeOptions,
@@ -113,6 +122,8 @@
       nodeExtent,
     };
 
+    console.log(nodes);
+
     Object.keys(valuesToSet).forEach((key) => {
       if (
         typeof valuesToSet[key] !== "undefined" &&
@@ -123,6 +134,16 @@
         );
       }
     });
+  }
+
+  function onNodesChange(event: CustomEvent<NodeChange[]>) {
+    nodes = Array.from($store.nodeInternals.values());
+    dispatch("nodes:change", event.detail);
+  }
+
+  function onEdgesChange(event: CustomEvent<EdgeChange>) {
+    edges = $store.edges;
+    dispatch('edges:change', event.detail);
   }
 </script>
 
@@ -180,9 +201,9 @@
     on:edge:mouseenter
     on:edge:mousemove
     on:edge:mouseleave
-    on:nodes:change
+    on:nodes:change={onNodesChange}
     on:nodes:delete
-    on:edges:change
+    on:edges:change={onEdgesChange}
     on:edges:delete
   />
   <slot />
@@ -497,7 +518,6 @@
       border-radius: 5px;
       stroke-width: 2px;
     }
-
   }
 
   .svelte-flow__attribution {

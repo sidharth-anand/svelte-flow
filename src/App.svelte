@@ -5,7 +5,7 @@
   import Controls from "./lib/additional-components/controls/controls.svelte";
   import MiniMap from "./lib/additional-components/minimap/minimap.svelte";
 
-  const nodes = [
+  let nodes = [
     {
       id: "1",
       type: "input",
@@ -83,7 +83,7 @@
 <main>
   <h1>Svelte Flow!</h1>
 
-  <SvelteFlow {nodes} {edges} fitView={true}>
+  <SvelteFlow bind:nodes bind:edges fitView={true}>
     <Background gap={10} size={0.8} />
     <Controls />
     <MiniMap />
