@@ -85,7 +85,7 @@
 
   export let connectionLineComponent: typeof SvelteComponent = null;
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<EventTypes>();
 
   $: {
     const valuesToUpdate = {
@@ -114,15 +114,11 @@
 
   $: {
     const valuesToSet = {
-      nodes,
-      edges,
       minZoom,
       maxZoom,
       translateExtent,
       nodeExtent,
     };
-
-    console.log(nodes);
 
     Object.keys(valuesToSet).forEach((key) => {
       if (
@@ -136,12 +132,20 @@
     });
   }
 
+  $: {
+    store.setNodes(nodes);
+  }
+
+  $: {
+    store.setEdges(edges);
+  }
+
   function onNodesChange(event: CustomEvent<NodeChange[]>) {
     nodes = Array.from($store.nodeInternals.values());
     dispatch("nodes:change", event.detail);
   }
 
-  function onEdgesChange(event: CustomEvent<EdgeChange>) {
+  function onEdgesChange(event: CustomEvent<EdgeChange[]>) {
     edges = $store.edges;
     dispatch('edges:change', event.detail);
   }

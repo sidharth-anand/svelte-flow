@@ -51,7 +51,6 @@ export function svelteFlowStore<NodeData = any, EdgeData = any>(): Readable<
               type: "reset",
             } as NodeResetChange<NodeData>)
         );
-        $store.onNodesChange(changes);
       };
 
       const setEdges: Instance.SetEdges<EdgeData> = (payload) => {
@@ -62,7 +61,6 @@ export function svelteFlowStore<NodeData = any, EdgeData = any>(): Readable<
         const changes = nextEdges.map(
           (edge) => ({ item: edge, type: "reset" } as EdgeResetChange<EdgeData>)
         );
-        $store.onEdgesChange(changes);
       };
 
       const addNodes: Instance.AddNodes<NodeData> = (payload) => {
@@ -74,7 +72,6 @@ export function svelteFlowStore<NodeData = any, EdgeData = any>(): Readable<
         const changes = nodes.map(
           (node) => ({ item: node, type: "add" } as NodeAddChange<NodeData>)
         );
-        $store.onNodesChange(changes);
       };
 
       const addEdges: Instance.AddEdges<EdgeData> = (payload) => {
@@ -84,7 +81,6 @@ export function svelteFlowStore<NodeData = any, EdgeData = any>(): Readable<
         const changes = nextEdges.map(
           (edge) => ({ item: edge, type: "add" } as EdgeAddChange<EdgeData>)
         );
-        $store.onEdgesChange(changes);
       };
 
       const toObject: Instance.ToObject<NodeData, EdgeData> = () => {

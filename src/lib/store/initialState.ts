@@ -11,8 +11,6 @@ const initialState: SvelteFlowStore = {
     transform: [0, 0, 1],
     nodeInternals: new Map(),
     edges: [],
-    onNodesChange: null,
-    onEdgesChange: null,
     selectedNodesBbox: { x:0, y:0, width: 0, height: 0 },
     d3Zoom: null,
     d3Selection: null,
